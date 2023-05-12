@@ -7,21 +7,9 @@ import LogoImage from './LogoImage';
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
-    height: '100%',
-  },
-  sidebar: {
-    display: 'flex',
+    height: '100vh',
+    alignItems: 'center', // Centra verticalmente el contenido del contenedor
     justifyContent: 'center',
-    alignItems: 'center',
-    background: theme.palette.primary.main,
-    paddingBottom: theme.spacing(5),
-    width: theme.dimensions.sidebarWidth,
-    [theme.breakpoints.down('lg')]: {
-      width: theme.dimensions.sidebarWidthTablet,
-    },
-    [theme.breakpoints.down('sm')]: {
-      width: '0px',
-    },
   },
   paper: {
     display: 'flex',
@@ -30,14 +18,15 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     flex: 1,
     boxShadow: '-2px 0px 16px rgba(0, 0, 0, 0.25)',
-    [theme.breakpoints.up('lg')]: {
-      padding: theme.spacing(0, 25, 0, 0),
-    },
-  },
-  form: {
     maxWidth: theme.spacing(52),
     padding: theme.spacing(5),
-    width: '100%',
+    width: '100%', // Ocupa todo el ancho del contenedor
+  },
+  form: {
+    width: '100%', // Ocupa todo el ancho del formulario
+  },
+  logo: {
+    padding: theme.spacing(2),
   },
 }));
 
@@ -47,10 +36,10 @@ const LoginLayout = ({ children }) => {
 
   return (
     <main className={classes.root}>
-      <div className={classes.sidebar}>
-        {!useMediaQuery(theme.breakpoints.down('lg')) && <LogoImage color={theme.palette.secondary.contrastText} />}
-      </div>
       <Paper className={classes.paper}>
+        <div className={classes.logo}>
+          {!useMediaQuery(theme.breakpoints.down('lg')) && <LogoImage color={theme.palette.secondary.contrastText} />}
+        </div>
         <form className={classes.form}>
           {children}
         </form>
