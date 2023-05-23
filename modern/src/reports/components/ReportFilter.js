@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import {
-  FormControl, InputLabel, Select, MenuItem, Button, TextField, Typography,
+  FormControl, Button, TextField, Typography,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
+import Select from 'react-select';
 import { useTranslation } from '../../common/components/LocalizationProvider';
 import useReportStyles from '../common/useReportStyles';
 import { devicesActions, reportsActions } from '../../store';
@@ -87,14 +88,46 @@ const ReportFilter = ({ children, handleSubmit, handleSchedule, showOnly, ignore
       });
     }
   };
-
+  const options = Object.values(devices).sort((a, b) => a.name.localeCompare(b.name)).map((device) => ({
+    value: device.id,
+    label: device.name,
+  }));
+  const handleChange = (selectedOption) => {
+    if (multiDevice) {
+      const selectedIds = selectedOption.map((option) => option.value);
+      dispatch(devicesActions.selectIds(selectedIds));
+    } else {
+      const selectedId = selectedOption.value;
+      dispatch(devicesActions.selectId(selectedId));
+    }
+  };
+  const optionsGroups = Object.values(groups).sort((a, b) => a.name.localeCompare(b.name)).map((group) => ({
+    value: group.id,
+    label: group.name,
+  }));
+  const handleChangeGroups = (selectedGroupOption) => {
+    const selectedGroupIds = selectedGroupOption.map((optionGroup) => optionGroup.value);
+    dispatch(reportsActions.updateGroupIds(selectedGroupIds));
+  };
+  const handleChangePeriod = (selectedPeriodOption) => {
+    const selectedPeriod = selectedPeriodOption.value;
+    dispatch(reportsActions.updatePeriod(selectedPeriod));
+  };
+  const optionsPeriod = [
+    { value: 'today', label: t('reportToday') },
+    { value: 'yesterday', label: t('reportYesterday') },
+    { value: 'thisWeek', label: t('reportThisWeek') },
+    { value: 'previousWeek', label: t('reportPreviousWeek') },
+    { value: 'thisMonth', label: t('reportThisMonth') },
+    { value: 'previousMonth', label: t('reportPreviousMonth') },
+    { value: 'custom', label: t('reportCustom') },
+  ];
   return (
     <div className={classes.filter}>
       {!ignoreDevice && (
         <div className={classes.filterItem}>
           <FormControl fullWidth>
-            <InputLabel>{t(multiDevice ? 'deviceTitle' : 'reportDevice')}</InputLabel>
-            <Select
+            {/* <Select
               label={t(multiDevice ? 'deviceTitle' : 'reportDevice')}
               value={multiDevice ? deviceIds : deviceId || ''}
               onChange={(e) => dispatch(multiDevice ? devicesActions.selectIds(e.target.value) : devicesActions.selectId(e.target.value))}
@@ -103,15 +136,23 @@ const ReportFilter = ({ children, handleSubmit, handleSchedule, showOnly, ignore
               {Object.values(devices).sort((a, b) => a.name.localeCompare(b.name)).map((device) => (
                 <MenuItem key={device.id} value={device.id}>{device.name}</MenuItem>
               ))}
-            </Select>
+            </Select> */}
+            <Select
+              options={options}
+              placeholder={t(multiDevice ? 'deviceTitle' : 'reportDevice')}
+              value={multiDevice ? options.filter((option) => deviceIds.includes(option.value)) : options.find((option) => option.value === deviceId)}
+              onChange={handleChange}
+              isMulti={multiDevice}
+              menuPortalTarget={document.body}
+            />
           </FormControl>
         </div>
       )}
       {includeGroups && (
         <div className={classes.filterItem}>
           <FormControl fullWidth>
-            <InputLabel>{t('settingsGroups')}</InputLabel>
-            <Select
+            {/* <InputLabel>{t('settingsGroups')}</InputLabel> */}
+            {/* <Select
               label={t('settingsGroups')}
               value={groupIds}
               onChange={(e) => dispatch(reportsActions.updateGroupIds(e.target.value))}
@@ -120,7 +161,17 @@ const ReportFilter = ({ children, handleSubmit, handleSchedule, showOnly, ignore
               {Object.values(groups).sort((a, b) => a.name.localeCompare(b.name)).map((group) => (
                 <MenuItem key={group.id} value={group.id}>{group.name}</MenuItem>
               ))}
-            </Select>
+            </Select> */}
+
+            <Select
+              options={optionsGroups}
+              placeholder={t('settingsGroups')}
+              value={optionsGroups.filter((optionGroup) => groupIds.includes(optionGroup.value))}
+              onChange={handleChangeGroups}
+              isMulti
+              menuPortalTarget={document.body}
+            />
+
           </FormControl>
         </div>
       )}
@@ -128,7 +179,7 @@ const ReportFilter = ({ children, handleSubmit, handleSchedule, showOnly, ignore
         <>
           <div className={classes.filterItem}>
             <FormControl fullWidth>
-              <InputLabel>{t('reportPeriod')}</InputLabel>
+              {/* <InputLabel>{t('reportPeriod')}</InputLabel>
               <Select label={t('reportPeriod')} value={period} onChange={(e) => dispatch(reportsActions.updatePeriod(e.target.value))}>
                 <MenuItem value="today">{t('reportToday')}</MenuItem>
                 <MenuItem value="yesterday">{t('reportYesterday')}</MenuItem>
@@ -137,7 +188,14 @@ const ReportFilter = ({ children, handleSubmit, handleSchedule, showOnly, ignore
                 <MenuItem value="thisMonth">{t('reportThisMonth')}</MenuItem>
                 <MenuItem value="previousMonth">{t('reportPreviousMonth')}</MenuItem>
                 <MenuItem value="custom">{t('reportCustom')}</MenuItem>
-              </Select>
+              </Select> */}
+              <Select
+                options={optionsPeriod}
+                placeholder={t('reportPeriod')}
+                value={optionsPeriod.find((option) => option.value === period)}
+                onChange={handleChangePeriod}
+                menuPortalTarget={document.body}
+              />
             </FormControl>
           </div>
           {period === 'custom' && (

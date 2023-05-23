@@ -25,6 +25,7 @@
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.10.0",
     "react-scripts": "^5.0.1",
+    "react-select": "^5.7.3",
     "react-virtualized-auto-sizer": "^1.0.14",
     "react-window": "^1.8.8",
     "recharts": "^2.5.0",

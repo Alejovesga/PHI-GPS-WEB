@@ -29,6 +29,7 @@ const ColumnSelect = ({
               <MenuItem key={key} value={key}>{columnsObject[key].name}</MenuItem>
             ))}
         </Select>
+
       </FormControl>
     </div>
   );
