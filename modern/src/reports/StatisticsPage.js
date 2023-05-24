@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table, TableRow, TableCell, TableHead, TableBody,
 } from '@mui/material';
@@ -13,6 +13,7 @@ import { useCatch } from '../reactHelper';
 import useReportStyles from './common/useReportStyles';
 import TableShimmer from '../common/components/TableShimmer';
 import { usePreference } from '../common/util/preferences';
+import Pagination from './components/Pagination';
 
 const columnsArray = [
   ['captureTime', 'statisticsCaptureTime'],
@@ -52,32 +53,78 @@ const StatisticsPage = () => {
       setLoading(false);
     }
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageSection, setCurrentPageSection] = useState(1);
+  useEffect(() => {
+    function handlepage() {
+      setCurrentPage(1);
+    }
+    handlepage();
+    function handleRangePage() {
+      setCurrentPageSection(1);
+    }
+    handleRangePage();
+  }, [items]);
+  // Calcula el índice del primer y último registro en cada página
+  const indexOfLast = currentPage * 100;
+  const indexOfFirst = indexOfLast - 100;
+  // Calcula el número total de páginas
+  const totalPages = Math.ceil(items.length / 100);
+  // Cambia a la página seleccionada
+  const onPageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
+  // cantidad de pagina en seccion
+  let pagesSection = [...Array(totalPages).keys()].map((num) => num + 1);
+  const indexLastSection = currentPageSection * 10;
+  const indexFirstSection = indexLastSection - 10;
+  pagesSection = pagesSection.slice(indexFirstSection, indexLastSection);
+
+  const onPageSectionChange = (pageNumber) => {
+    setCurrentPageSection(pageNumber);
+  };
+  const onPageSectionChangeBefore = (pageNumber) => {
+    setCurrentPageSection(pageNumber);
+  };
   return (
     <PageLayout menu={<ReportsMenu />} breadcrumbs={['reportTitle', 'statisticsTitle']}>
-      <div className={classes.header}>
-        <ReportFilter handleSubmit={handleSubmit} showOnly ignoreDevice>
-          <ColumnSelect columns={columns} setColumns={setColumns} columnsArray={columnsArray} />
-        </ReportFilter>
-      </div>
-      <Table>
-        <TableHead>
-          <TableRow>
-            {columns.map((key) => (<TableCell key={key}>{t(columnsMap.get(key))}</TableCell>))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {!loading ? items.map((item) => (
-            <TableRow key={item.id}>
-              {columns.map((key) => (
-                <TableCell key={key}>
-                  {key === 'captureTime' ? formatTime(item[key], 'date', hours12) : item[key]}
-                </TableCell>
-              ))}
+      <div className={classes.containerMain}>
+        <div className={classes.header}>
+          <ReportFilter handleSubmit={handleSubmit} showOnly ignoreDevice>
+            <ColumnSelect columns={columns} setColumns={setColumns} columnsArray={columnsArray} />
+          </ReportFilter>
+        </div>
+        <Table>
+          <TableHead>
+            <TableRow>
+              {columns.map((key) => (<TableCell key={key}>{t(columnsMap.get(key))}</TableCell>))}
             </TableRow>
-          )) : (<TableShimmer columns={columns.length} />)}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {!loading ? items.slice(indexOfFirst, indexOfLast).map((item) => (
+              <TableRow key={item.id}>
+                {columns.map((key) => (
+                  <TableCell key={key}>
+                    {key === 'captureTime' ? formatTime(item[key], 'date', hours12) : item[key]}
+                  </TableCell>
+                ))}
+              </TableRow>
+            )) : (<TableShimmer columns={columns.length} />)}
+          </TableBody>
+        </Table>
+      </div>
+      <div className={classes.buttonsPagination}>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pagesSection={pagesSection}
+          onPageChange={onPageChange}
+          onPageSectionChange={onPageSectionChange}
+          currentPageSection={currentPageSection}
+          onPageSectionChangeBefore={onPageSectionChangeBefore}
+        />
+      </div>
     </PageLayout>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import {
   Table, TableBody, TableCell, TableHead, TableRow,
@@ -18,6 +18,7 @@ import { formatTime } from '../common/util/formatter';
 import { usePreference } from '../common/util/preferences';
 import { prefixString } from '../common/util/stringUtils';
 import MapMarkers from '../map/MapMarkers';
+import Pagination from './components/Pagination';
 
 const CombinedReportPage = () => {
   const classes = useReportStyles();
@@ -54,7 +55,42 @@ const CombinedReportPage = () => {
       setLoading(false);
     }
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageSection, setCurrentPageSection] = useState(1);
+  useEffect(() => {
+    function handlepage() {
+      setCurrentPage(1);
+    }
+    handlepage();
+    function handleRangePage() {
+      setCurrentPageSection(1);
+    }
+    handleRangePage();
+  }, [items]);
+  // Calcula el índice del primer y último registro en cada página
+  const indexOfLast = currentPage * 100;
+  const indexOfFirst = indexOfLast - 100;
+  // Calcula el número total de páginas
+  const totalPages = Math.ceil(items.flatMap((item) => item.events.length) / 100);
+  console.log(items.flatMap((item) => item.events.length));
+  // Cambia a la página seleccionada
+  const onPageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    console.log(pageNumber);
+  };
 
+  // cantidad de pagina en seccion
+  let pagesSection = [...Array(totalPages).keys()].map((num) => num + 1);
+  const indexLastSection = currentPageSection * 10;
+  const indexFirstSection = indexLastSection - 10;
+  pagesSection = pagesSection.slice(indexFirstSection, indexLastSection);
+
+  const onPageSectionChange = (pageNumber) => {
+    setCurrentPageSection(pageNumber);
+  };
+  const onPageSectionChangeBefore = (pageNumber) => {
+    setCurrentPageSection(pageNumber);
+  };
   return (
     <PageLayout menu={<ReportsMenu />} breadcrumbs={['reportTitle', 'reportCombined']}>
       <div className={classes.container}>
@@ -87,7 +123,7 @@ const CombinedReportPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {!loading ? items.flatMap((item) => item.events.map((event, index) => (
+              {!loading ? items.slice(indexOfFirst, indexOfLast).flatMap((item) => item.events.map((event, index) => (
                 <TableRow key={event.id}>
                   <TableCell>{index ? '' : devices[item.deviceId].name}</TableCell>
                   <TableCell>{formatTime(event.eventTime, 'seconds', hours12)}</TableCell>
@@ -96,6 +132,17 @@ const CombinedReportPage = () => {
               ))) : (<TableShimmer columns={3} />)}
             </TableBody>
           </Table>
+        </div>
+        <div className={classes.buttonsPagination}>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pagesSection={pagesSection}
+            onPageChange={onPageChange}
+            onPageSectionChange={onPageSectionChange}
+            currentPageSection={currentPageSection}
+            onPageSectionChangeBefore={onPageSectionChangeBefore}
+          />
         </div>
       </div>
     </PageLayout>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   IconButton, Table, TableBody, TableCell, TableHead, TableRow,
@@ -25,6 +25,7 @@ import MapMarkers from '../map/MapMarkers';
 import MapCamera from '../map/MapCamera';
 import MapGeofence from '../map/MapGeofence';
 import scheduleReport from './common/scheduleReport';
+import Pagination from './components/Pagination';
 
 const columnsArray = [
   ['startTime', 'reportStartTime'],
@@ -153,7 +154,40 @@ const TripReportPage = () => {
         return item[key];
     }
   };
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageSection, setCurrentPageSection] = useState(1);
+  useEffect(() => {
+    function handlepage() {
+      setCurrentPage(1);
+    }
+    handlepage();
+    function handleRangePage() {
+      setCurrentPageSection(1);
+    }
+    handleRangePage();
+  }, [items]);
+  // Calcula el índice del primer y último registro en cada página
+  const indexOfLast = currentPage * 100;
+  const indexOfFirst = indexOfLast - 100;
+  // Calcula el número total de páginas
+  const totalPages = Math.ceil(items.length / 100);
+  // Cambia a la página seleccionada
+  const onPageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
+  // cantidad de pagina en seccion
+  let pagesSection = [...Array(totalPages).keys()].map((num) => num + 1);
+  const indexLastSection = currentPageSection * 10;
+  const indexFirstSection = indexLastSection - 10;
+  pagesSection = pagesSection.slice(indexFirstSection, indexLastSection);
+
+  const onPageSectionChange = (pageNumber) => {
+    setCurrentPageSection(pageNumber);
+  };
+  const onPageSectionChangeBefore = (pageNumber) => {
+    setCurrentPageSection(pageNumber);
+  };
   return (
     <PageLayout menu={<ReportsMenu />} breadcrumbs={['reportTitle', 'reportTrips']}>
       <div className={classes.container}>
@@ -185,7 +219,7 @@ const TripReportPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {!loading ? items.map((item) => (
+              {!loading ? items.slice(indexOfFirst, indexOfLast).map((item) => (
                 <TableRow key={item.startPositionId}>
                   <TableCell className={classes.columnAction} padding="none">
                     {selectedItem === item ? (
@@ -207,6 +241,17 @@ const TripReportPage = () => {
               )) : (<TableShimmer columns={columns.length + 1} startAction />)}
             </TableBody>
           </Table>
+        </div>
+        <div className={classes.buttonsPagination}>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pagesSection={pagesSection}
+            onPageChange={onPageChange}
+            onPageSectionChange={onPageSectionChange}
+            currentPageSection={currentPageSection}
+            onPageSectionChangeBefore={onPageSectionChangeBefore}
+          />
         </div>
       </div>
     </PageLayout>

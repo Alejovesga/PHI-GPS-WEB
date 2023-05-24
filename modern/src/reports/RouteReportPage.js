@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -82,7 +82,16 @@ const RouteReportPage = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSection, setCurrentPageSection] = useState(1);
-
+  useEffect(() => {
+    function handlepage() {
+      setCurrentPage(1);
+    }
+    handlepage();
+    function handleRangePage() {
+      setCurrentPageSection(1);
+    }
+    handleRangePage();
+  }, [items]);
   // Calcula el índice del primer y último registro en cada página
   const indexOfLast = currentPage * 200;
   const indexOfFirst = indexOfLast - 200;
@@ -95,14 +104,16 @@ const RouteReportPage = () => {
 
   // cantidad de pagina en seccion
   let pagesSection = [...Array(totalPages).keys()].map((num) => num + 1);
-  const indexLastSection = currentPageSection * 4;
-  const indexFirstSection = indexLastSection - 4;
+  const indexLastSection = currentPageSection * 10;
+  const indexFirstSection = indexLastSection - 10;
   pagesSection = pagesSection.slice(indexFirstSection, indexLastSection);
 
   const onPageSectionChange = (pageNumber) => {
     setCurrentPageSection(pageNumber);
   };
-  console.log(totalPages, pagesSection);
+  const onPageSectionChangeBefore = (pageNumber) => {
+    setCurrentPageSection(pageNumber);
+  };
   return (
     <PageLayout menu={<ReportsMenu />} breadcrumbs={['reportTitle', 'reportRoute']}>
       <div className={classes.container}>
@@ -179,6 +190,7 @@ const RouteReportPage = () => {
             onPageChange={onPageChange}
             onPageSectionChange={onPageSectionChange}
             currentPageSection={currentPageSection}
+            onPageSectionChangeBefore={onPageSectionChangeBefore}
           />
         </div>
       </div>

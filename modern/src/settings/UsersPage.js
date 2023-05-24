@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Table, TableRow, TableCell, TableHead, TableBody,
@@ -17,11 +17,60 @@ import TableShimmer from '../common/components/TableShimmer';
 import { useManager } from '../common/util/permissions';
 import SearchHeader, { filterByKeyword } from './components/SearchHeader';
 import { usePreference } from '../common/util/preferences';
+import Pagination from '../reports/components/Pagination';
 
 const useStyles = makeStyles((theme) => ({
+  container: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  containerMain: {
+    overflow: 'auto',
+  },
   columnAction: {
     width: '1%',
     paddingRight: theme.spacing(1),
+  },
+  buttonsPagination: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonPage: {
+    margin: '5px',
+    padding: '10px',
+    border: '1px solid #ccc',
+    borderRadius: '3px',
+    cursor: 'pointer',
+    width: '2.3rem',
+    height: '2.3rem',
+    transition: 'background-color 0.3s',
+    '&:hover': {
+      backgroundColor: 'lightgray',
+    },
+    alignItems: 'center',
+  },
+  buttonPageMove: {
+    margin: '5px',
+    padding: '10px',
+    border: '1px solid #ccc',
+    borderRadius: '3px',
+    cursor: 'pointer',
+    width: '2.3rem',
+    height: '2.3rem',
+    backgroundColor: 'gray',
+    transition: 'background-color 0.3s',
+    '&:hover': {
+      backgroundColor: 'lightgray',
+    },
+    alignItems: 'center',
+  },
+  textPages: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: '5px',
+    padding: '10px',
   },
 }));
 
@@ -75,43 +124,91 @@ const UsersPage = () => {
       setLoading(false);
     }
   }, [timestamp]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageSection, setCurrentPageSection] = useState(1);
+  useEffect(() => {
+    function handlepage() {
+      setCurrentPage(1);
+    }
+    handlepage();
+    function handleRangePage() {
+      setCurrentPageSection(1);
+    }
+    handleRangePage();
+  }, [items]);
+  // Calcula el índice del primer y último registro en cada página
+  const indexOfLast = currentPage * 20;
+  const indexOfFirst = indexOfLast - 20;
+  // Calcula el número total de páginas
+  const totalPages = Math.ceil(items.length / 20);
+  // Cambia a la página seleccionada
+  const onPageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
+  // cantidad de pagina en seccion
+  let pagesSection = [...Array(totalPages).keys()].map((num) => num + 1);
+  const indexLastSection = currentPageSection * 10;
+  const indexFirstSection = indexLastSection - 10;
+  pagesSection = pagesSection.slice(indexFirstSection, indexLastSection);
+
+  const onPageSectionChange = (pageNumber) => {
+    setCurrentPageSection(pageNumber);
+  };
+  const onPageSectionChangeBefore = (pageNumber) => {
+    setCurrentPageSection(pageNumber);
+  };
   return (
     <PageLayout menu={<SettingsMenu />} breadcrumbs={['settingsTitle', 'settingsUsers']}>
-      <SearchHeader keyword={searchKeyword} setKeyword={setSearchKeyword} />
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>{t('sharedName')}</TableCell>
-            <TableCell>{t('userEmail')}</TableCell>
-            <TableCell>{t('userAdmin')}</TableCell>
-            <TableCell>{t('sharedDisabled')}</TableCell>
-            <TableCell>{t('userExpirationTime')}</TableCell>
-            <TableCell className={classes.columnAction} />
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {!loading ? items.filter(filterByKeyword(searchKeyword)).map((item) => (
-            <TableRow key={item.id}>
-              <TableCell>{item.name}</TableCell>
-              <TableCell>{item.email}</TableCell>
-              <TableCell>{formatBoolean(item.administrator, t)}</TableCell>
-              <TableCell>{formatBoolean(item.disabled, t)}</TableCell>
-              <TableCell>{formatTime(item.expirationTime, 'date', hours12)}</TableCell>
-              <TableCell className={classes.columnAction} padding="none">
-                <CollectionActions
-                  itemId={item.id}
-                  editPath="/settings/user"
-                  endpoint="users"
-                  setTimestamp={setTimestamp}
-                  customActions={manager ? [actionLogin, actionConnections] : [actionConnections]}
-                />
-              </TableCell>
-            </TableRow>
-          )) : (<TableShimmer columns={6} endAction />)}
-        </TableBody>
-      </Table>
-      <CollectionFab editPath="/settings/user" />
+      <div className={classes.container}>
+        <SearchHeader keyword={searchKeyword} setKeyword={setSearchKeyword} />
+        <div className={classes.containerMain}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>{t('sharedName')}</TableCell>
+                <TableCell>{t('userEmail')}</TableCell>
+                <TableCell>{t('userAdmin')}</TableCell>
+                <TableCell>{t('sharedDisabled')}</TableCell>
+                <TableCell>{t('userExpirationTime')}</TableCell>
+                <TableCell className={classes.columnAction} />
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {!loading ? items.slice(indexOfFirst, indexOfLast).filter(filterByKeyword(searchKeyword)).map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{item.email}</TableCell>
+                  <TableCell>{formatBoolean(item.administrator, t)}</TableCell>
+                  <TableCell>{formatBoolean(item.disabled, t)}</TableCell>
+                  <TableCell>{formatTime(item.expirationTime, 'date', hours12)}</TableCell>
+                  <TableCell className={classes.columnAction} padding="none">
+                    <CollectionActions
+                      itemId={item.id}
+                      editPath="/settings/user"
+                      endpoint="users"
+                      setTimestamp={setTimestamp}
+                      customActions={manager ? [actionLogin, actionConnections] : [actionConnections]}
+                    />
+                  </TableCell>
+                </TableRow>
+              )) : (<TableShimmer columns={6} endAction />)}
+            </TableBody>
+          </Table>
+        </div>
+        <div className={classes.buttonsPagination}>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pagesSection={pagesSection}
+            onPageChange={onPageChange}
+            onPageSectionChange={onPageSectionChange}
+            currentPageSection={currentPageSection}
+            onPageSectionChangeBefore={onPageSectionChangeBefore}
+          />
+        </div>
+        <CollectionFab editPath="/settings/user" />
+      </div>
     </PageLayout>
   );
 };

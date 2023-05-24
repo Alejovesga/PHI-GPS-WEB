@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -18,6 +18,7 @@ import { useCatch } from '../reactHelper';
 import useReportStyles from './common/useReportStyles';
 import TableShimmer from '../common/components/TableShimmer';
 import scheduleReport from './common/scheduleReport';
+import Pagination from './components/Pagination';
 
 const columnsArray = [
   ['startTime', 'reportStartDate'],
@@ -108,43 +109,91 @@ const SummaryReportPage = () => {
         return item[key];
     }
   };
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageSection, setCurrentPageSection] = useState(1);
+  useEffect(() => {
+    function handlepage() {
+      setCurrentPage(1);
+    }
+    handlepage();
+    function handleRangePage() {
+      setCurrentPageSection(1);
+    }
+    handleRangePage();
+  }, [items]);
+  // Calcula el índice del primer y último registro en cada página
+  const indexOfLast = currentPage * 100;
+  const indexOfFirst = indexOfLast - 100;
+  // Calcula el número total de páginas
+  const totalPages = Math.ceil(items.length / 100);
+  // Cambia a la página seleccionada
+  const onPageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
+  // cantidad de pagina en seccion
+  let pagesSection = [...Array(totalPages).keys()].map((num) => num + 1);
+  const indexLastSection = currentPageSection * 10;
+  const indexFirstSection = indexLastSection - 10;
+  pagesSection = pagesSection.slice(indexFirstSection, indexLastSection);
+
+  const onPageSectionChange = (pageNumber) => {
+    setCurrentPageSection(pageNumber);
+  };
+  const onPageSectionChangeBefore = (pageNumber) => {
+    setCurrentPageSection(pageNumber);
+  };
   return (
     <PageLayout menu={<ReportsMenu />} breadcrumbs={['reportTitle', 'reportSummary']}>
-      <div className={classes.header}>
-        <ReportFilter handleSubmit={handleSubmit} handleSchedule={handleSchedule} multiDevice includeGroups>
-          <div className={classes.filterItem}>
-            <FormControl fullWidth>
-              <InputLabel>{t('sharedType')}</InputLabel>
-              <Select label={t('sharedType')} value={daily} onChange={(e) => setDaily(e.target.value)}>
-                <MenuItem value={false}>{t('reportSummary')}</MenuItem>
-                <MenuItem value>{t('reportDaily')}</MenuItem>
-              </Select>
-            </FormControl>
+      <div className={classes.container}>
+        <div className={classes.containerMain}>
+          <div className={classes.header}>
+            <ReportFilter handleSubmit={handleSubmit} handleSchedule={handleSchedule} multiDevice includeGroups>
+              <div className={classes.filterItem}>
+                <FormControl fullWidth>
+                  <InputLabel>{t('sharedType')}</InputLabel>
+                  <Select label={t('sharedType')} value={daily} onChange={(e) => setDaily(e.target.value)}>
+                    <MenuItem value={false}>{t('reportSummary')}</MenuItem>
+                    <MenuItem value>{t('reportDaily')}</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
+              <ColumnSelect columns={columns} setColumns={setColumns} columnsArray={columnsArray} />
+            </ReportFilter>
           </div>
-          <ColumnSelect columns={columns} setColumns={setColumns} columnsArray={columnsArray} />
-        </ReportFilter>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>{t('sharedDevice')}</TableCell>
+                {columns.map((key) => (<TableCell key={key}>{t(columnsMap.get(key))}</TableCell>))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {!loading ? items.slice(indexOfFirst, indexOfLast).map((item) => (
+                <TableRow key={(`${item.deviceId}_${Date.parse(item.startTime)}`)}>
+                  <TableCell>{devices[item.deviceId].name}</TableCell>
+                  {columns.map((key) => (
+                    <TableCell key={key}>
+                      {formatValue(item, key)}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              )) : (<TableShimmer columns={columns.length + 1} />)}
+            </TableBody>
+          </Table>
+        </div>
+        <div className={classes.buttonsPagination}>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pagesSection={pagesSection}
+            onPageChange={onPageChange}
+            onPageSectionChange={onPageSectionChange}
+            currentPageSection={currentPageSection}
+            onPageSectionChangeBefore={onPageSectionChangeBefore}
+          />
+        </div>
       </div>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>{t('sharedDevice')}</TableCell>
-            {columns.map((key) => (<TableCell key={key}>{t(columnsMap.get(key))}</TableCell>))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {!loading ? items.map((item) => (
-            <TableRow key={(`${item.deviceId}_${Date.parse(item.startTime)}`)}>
-              <TableCell>{devices[item.deviceId].name}</TableCell>
-              {columns.map((key) => (
-                <TableCell key={key}>
-                  {formatValue(item, key)}
-                </TableCell>
-              ))}
-            </TableRow>
-          )) : (<TableShimmer columns={columns.length + 1} />)}
-        </TableBody>
-      </Table>
     </PageLayout>
   );
 };
