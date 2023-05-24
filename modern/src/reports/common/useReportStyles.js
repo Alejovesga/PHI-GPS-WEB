@@ -46,4 +46,36 @@ export default makeStyles((theme) => ({
     flexGrow: 1,
     overflow: 'hidden',
   },
+  // buttonsPagination: {
+  //   marginTop: 5,
+  // },
+  // buttonPage: {
+  //   padding: 10,
+  //   font: 1,
+  //   background: '#F4F6F7',
+  //   bgcolor: 'background.paper',
+  //   m: 1,
+  //   borderColor: 'text.primary',
+  //   width: '2.3rem',
+  //   height: '2.3rem',
+  // },
+  buttonsPagination: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonPage: {
+    margin: '5px',
+    padding: '10px',
+    border: '1px solid #ccc',
+    borderRadius: '3px',
+    cursor: 'pointer',
+    width: '2.3rem',
+    height: '2.3rem',
+    transition: 'background-color 0.3s',
+    '&:hover': {
+      backgroundColor: 'lightgray',
+    },
+    alignItems: 'center',
+  },
 }));
