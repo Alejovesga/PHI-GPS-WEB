@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
-  FormControl, InputLabel, Select, MenuItem, Table, TableHead, TableRow, TableBody, TableCell,
+  FormControl, Table, TableHead, TableRow, TableBody, TableCell,
 } from '@mui/material';
+import Select from 'react-select';
 import {
   formatDistance, formatHours, formatSpeed, formatVolume, formatTime,
 } from '../common/util/formatter';
@@ -143,6 +144,14 @@ const SummaryReportPage = () => {
   const onPageSectionChangeBefore = (pageNumber) => {
     setCurrentPageSection(pageNumber);
   };
+  const options = [
+    { value: false, label: t('reportSummary') },
+    { value: true, label: t('reportDaily') },
+  ];
+  const handleChange = (selectedOption) => {
+    const value = selectedOption ? selectedOption.value : false;
+    setDaily(value);
+  };
   return (
     <PageLayout menu={<ReportsMenu />} breadcrumbs={['reportTitle', 'reportSummary']}>
       <div className={classes.container}>
@@ -151,11 +160,16 @@ const SummaryReportPage = () => {
             <ReportFilter handleSubmit={handleSubmit} handleSchedule={handleSchedule} multiDevice includeGroups>
               <div className={classes.filterItem}>
                 <FormControl fullWidth>
-                  <InputLabel>{t('sharedType')}</InputLabel>
-                  <Select label={t('sharedType')} value={daily} onChange={(e) => setDaily(e.target.value)}>
+                  {/* <Select label={t('sharedType')} value={daily} onChange={(e) => setDaily(e.target.value)}>
                     <MenuItem value={false}>{t('reportSummary')}</MenuItem>
                     <MenuItem value>{t('reportDaily')}</MenuItem>
-                  </Select>
+                  </Select> */}
+                  <Select
+                    options={options}
+                    value={options.find((option) => option.value === daily)}
+                    onChange={handleChange}
+                    placeholder={t('sharedType')}
+                  />
                 </FormControl>
               </div>
               <ColumnSelect columns={columns} setColumns={setColumns} columnsArray={columnsArray} />

@@ -12,11 +12,10 @@ import SplitButton from '../../common/components/SplitButton';
 import SelectField from '../../common/components/SelectField';
 import { useRestriction } from '../../common/util/permissions';
 
-const ReportFilter = ({ children, handleSubmit, handleSchedule, showOnly, ignoreDevice, multiDevice, includeGroups }) => {
+const ReportFilter = ({ children, handleSubmit, handleSchedule, showOnly, ignoreDevice, multiDevice, includeGroups, menuPortalTarget }) => {
   const classes = useReportStyles();
   const dispatch = useDispatch();
   const t = useTranslation();
-
   const readonly = useRestriction('readonly');
 
   const devices = useSelector((state) => state.devices.items);
@@ -138,12 +137,13 @@ const ReportFilter = ({ children, handleSubmit, handleSchedule, showOnly, ignore
               ))}
             </Select> */}
             <Select
+              className={classes.selectItem}
               options={options}
               placeholder={t(multiDevice ? 'deviceTitle' : 'reportDevice')}
               value={multiDevice ? options.filter((option) => deviceIds.includes(option.value)) : options.find((option) => option.value === deviceId)}
               onChange={handleChange}
               isMulti={multiDevice}
-              menuPortalTarget={document.body}
+              menuPortalTarget={menuPortalTarget === 1 ? false : document.body}
             />
           </FormControl>
         </div>
@@ -169,9 +169,8 @@ const ReportFilter = ({ children, handleSubmit, handleSchedule, showOnly, ignore
               value={optionsGroups.filter((optionGroup) => groupIds.includes(optionGroup.value))}
               onChange={handleChangeGroups}
               isMulti
-              menuPortalTarget={document.body}
+              menuPortalTarget={menuPortalTarget === 1 ? false : document.body}
             />
-
           </FormControl>
         </div>
       )}
@@ -194,7 +193,7 @@ const ReportFilter = ({ children, handleSubmit, handleSchedule, showOnly, ignore
                 placeholder={t('reportPeriod')}
                 value={optionsPeriod.find((option) => option.value === period)}
                 onChange={handleChangePeriod}
-                menuPortalTarget={document.body}
+                menuPortalTarget={menuPortalTarget === 1 ? false : document.body}
               />
             </FormControl>
           </div>

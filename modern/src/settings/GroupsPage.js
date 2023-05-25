@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Table, TableRow, TableCell, TableHead, TableBody,
@@ -15,11 +15,20 @@ import CollectionActions from './components/CollectionActions';
 import TableShimmer from '../common/components/TableShimmer';
 import SearchHeader, { filterByKeyword } from './components/SearchHeader';
 import { useRestriction } from '../common/util/permissions';
+import Pagination from '../reports/components/Pagination';
 
 const useStyles = makeStyles((theme) => ({
+  containerMain: {
+    overflow: 'auto',
+  },
   columnAction: {
     width: '1%',
     paddingRight: theme.spacing(1),
+  },
+  buttonsPagination: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 }));
 
@@ -62,35 +71,81 @@ const GroupsPage = () => {
     icon: <LinkIcon fontSize="small" />,
     handler: (groupId) => navigate(`/settings/group/${groupId}/connections`),
   };
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageSection, setCurrentPageSection] = useState(1);
+  useEffect(() => {
+    function handlepage() {
+      setCurrentPage(1);
+    }
+    handlepage();
+    function handleRangePage() {
+      setCurrentPageSection(1);
+    }
+    handleRangePage();
+  }, [items]);
+  // Calcula el índice del primer y último registro en cada página
+  const indexOfLast = currentPage * 50;
+  const indexOfFirst = indexOfLast - 50;
+  // Calcula el número total de páginas
+  const totalPages = Math.ceil(items.length / 50);
+  // Cambia a la página seleccionada
+  const onPageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
+  // cantidad de pagina en seccion
+  let pagesSection = [...Array(totalPages).keys()].map((num) => num + 1);
+  const indexLastSection = currentPageSection * 10;
+  const indexFirstSection = indexLastSection - 10;
+  pagesSection = pagesSection.slice(indexFirstSection, indexLastSection);
+
+  const onPageSectionChange = (pageNumber) => {
+    setCurrentPageSection(pageNumber);
+  };
+  const onPageSectionChangeBefore = (pageNumber) => {
+    setCurrentPageSection(pageNumber);
+  };
   return (
     <PageLayout menu={<SettingsMenu />} breadcrumbs={['settingsTitle', 'settingsGroups']}>
-      <SearchHeader keyword={searchKeyword} setKeyword={setSearchKeyword} />
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>{t('sharedName')}</TableCell>
-            <TableCell className={classes.columnAction} />
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {!loading ? items.filter(filterByKeyword(searchKeyword)).map((item) => (
-            <TableRow key={item.id}>
-              <TableCell>{item.name}</TableCell>
-              <TableCell className={classes.columnAction} padding="none">
-                <CollectionActions
-                  itemId={item.id}
-                  editPath="/settings/group"
-                  endpoint="groups"
-                  setTimestamp={setTimestamp}
-                  customActions={limitCommands ? [actionConnections] : [actionConnections, actionCommand]}
-                />
-              </TableCell>
+      <div className={classes.containerMain}>
+        <SearchHeader keyword={searchKeyword} setKeyword={setSearchKeyword} />
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>{t('sharedName')}</TableCell>
+              <TableCell className={classes.columnAction} />
             </TableRow>
-          )) : (<TableShimmer columns={2} endAction />)}
-        </TableBody>
-      </Table>
-      <CollectionFab editPath="/settings/group" />
+          </TableHead>
+          <TableBody>
+            {!loading ? items.slice(indexOfFirst, indexOfLast).filter(filterByKeyword(searchKeyword)).map((item) => (
+              <TableRow key={item.id}>
+                <TableCell>{item.name}</TableCell>
+                <TableCell className={classes.columnAction} padding="none">
+                  <CollectionActions
+                    itemId={item.id}
+                    editPath="/settings/group"
+                    endpoint="groups"
+                    setTimestamp={setTimestamp}
+                    customActions={limitCommands ? [actionConnections] : [actionConnections, actionCommand]}
+                  />
+                </TableCell>
+              </TableRow>
+            )) : (<TableShimmer columns={2} endAction />)}
+          </TableBody>
+        </Table>
+        <CollectionFab editPath="/settings/group" />
+      </div>
+      <div className={classes.buttonsPagination}>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pagesSection={pagesSection}
+          onPageChange={onPageChange}
+          onPageSectionChange={onPageSectionChange}
+          currentPageSection={currentPageSection}
+          onPageSectionChangeBefore={onPageSectionChangeBefore}
+        />
+      </div>
     </PageLayout>
   );
 };

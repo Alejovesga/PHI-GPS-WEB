@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  FormControl, InputLabel, Select, MenuItem, Table, TableHead, TableRow, TableCell, TableBody, Link, IconButton,
+  FormControl, Table, TableHead, TableRow, TableCell, TableBody, Link, IconButton,
 } from '@mui/material';
+import Select from 'react-select';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
 import { useSelector } from 'react-redux';
@@ -187,6 +188,19 @@ const EventReportPage = () => {
   const onPageSectionChangeBefore = (pageNumber) => {
     setCurrentPageSection(pageNumber);
   };
+
+  const options = allEventTypes.map(([key, string]) => ({
+    value: key,
+    label: t(string),
+  }));
+  const handleChange = (selectedOptions) => {
+    const selectedValues = selectedOptions.map((option) => option.value);
+    if (selectedValues.includes('allEvents')) {
+      setEventTypes(['allEvents']);
+    } else {
+      setEventTypes(selectedValues.filter((value) => value !== 'allEvents'));
+    }
+  };
   return (
     <PageLayout menu={<ReportsMenu />} breadcrumbs={['reportTitle', 'reportEvents']}>
       <div className={classes.container}>
@@ -204,8 +218,7 @@ const EventReportPage = () => {
             <ReportFilter handleSubmit={handleSubmit} handleSchedule={handleSchedule}>
               <div className={classes.filterItem}>
                 <FormControl fullWidth>
-                  <InputLabel>{t('reportEventTypes')}</InputLabel>
-                  <Select
+                  {/* <Select
                     label={t('reportEventTypes')}
                     value={eventTypes}
                     onChange={(event, child) => {
@@ -221,7 +234,16 @@ const EventReportPage = () => {
                     {allEventTypes.map(([key, string]) => (
                       <MenuItem key={key} value={key}>{t(string)}</MenuItem>
                     ))}
-                  </Select>
+                  </Select> */}
+                  <Select
+                    instanceId="eventTypes"
+                    options={options}
+                    placeholder={t('reportEventTypes')}
+                    value={options.filter((option) => eventTypes.includes(option.value))}
+                    onChange={handleChange}
+                    isMulti
+                    menuPortalTarget={document.body}
+                  />
                 </FormControl>
               </div>
               <ColumnSelect columns={columns} setColumns={setColumns} columnsArray={columnsArray} />

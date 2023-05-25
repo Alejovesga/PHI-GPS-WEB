@@ -214,7 +214,7 @@ const ReplayPage = () => {
               </div>
             </>
           ) : (
-            <ReportFilter handleSubmit={handleSubmit} fullScreen showOnly />
+            <ReportFilter handleSubmit={handleSubmit} fullScreen showOnly menuPortalTarget={1} />
           )}
         </Paper>
       </div>

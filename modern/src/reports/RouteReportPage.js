@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   IconButton, Table, TableBody, TableCell, TableHead, TableRow,
 } from '@mui/material';
+import Select from 'react-select';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
 import ReportFilter from './components/ReportFilter';
@@ -142,6 +143,9 @@ const RouteReportPage = () => {
                 columns={columns}
                 setColumns={setColumns}
                 columnsObject={positionAttributes}
+              />
+              <Select
+                placeholder={t('time')}
               />
             </ReportFilter>
           </div>

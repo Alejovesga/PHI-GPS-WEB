@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import {
-  FormControl, InputLabel, Select, MenuItem,
+  FormControl,
 } from '@mui/material';
 import {
   CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
+import Select from 'react-select';
 import ReportFilter from './components/ReportFilter';
 import { formatTime } from '../common/util/formatter';
 import { useTranslation } from '../common/components/LocalizationProvider';
@@ -82,18 +83,35 @@ const ChartReportPage = () => {
       throw Error(await response.text());
     }
   });
+  const options = Object.keys(positionAttributes)
+    .filter((key) => positionAttributes[key].type === 'number')
+    .map((key) => ({
+      value: key,
+      label: positionAttributes[key].name,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
 
+  const handleChange = (selectedOption) => {
+    const value = selectedOption ? selectedOption.value : '';
+    setType(value);
+  };
   return (
     <PageLayout menu={<ReportsMenu />} breadcrumbs={['reportTitle', 'reportChart']}>
       <ReportFilter handleSubmit={handleSubmit} showOnly>
         <div className={classes.filterItem}>
           <FormControl fullWidth>
-            <InputLabel>{t('reportChartType')}</InputLabel>
-            <Select label={t('reportChartType')} value={type} onChange={(e) => setType(e.target.value)}>
+            {/* <Select label={t('reportChartType')} value={type} onChange={(e) => setType(e.target.value)}>
               {Object.keys(positionAttributes).filter((key) => positionAttributes[key].type === 'number').map((key) => (
                 <MenuItem key={key} value={key}>{positionAttributes[key].name}</MenuItem>
               ))}
-            </Select>
+            </Select> */}
+            <Select
+              instanceId="typeSelect"
+              options={options}
+              value={options.find((option) => option.value === type)}
+              onChange={handleChange}
+              placeholder={t('reportChartType')}
+            />
           </FormControl>
         </div>
       </ReportFilter>

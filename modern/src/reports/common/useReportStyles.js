@@ -34,6 +34,9 @@ export default makeStyles((theme) => ({
     minWidth: 0,
     flex: `1 1 ${theme.dimensions.filterFormWidth}`,
   },
+  selectItem: {
+    zIndex: 'tooltip',
+  },
   filterButtons: {
     display: 'flex',
     gap: theme.spacing(1),

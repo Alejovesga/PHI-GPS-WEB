@@ -37,41 +37,6 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  buttonPage: {
-    margin: '5px',
-    padding: '10px',
-    border: '1px solid #ccc',
-    borderRadius: '3px',
-    cursor: 'pointer',
-    width: '2.3rem',
-    height: '2.3rem',
-    transition: 'background-color 0.3s',
-    '&:hover': {
-      backgroundColor: 'lightgray',
-    },
-    alignItems: 'center',
-  },
-  buttonPageMove: {
-    margin: '5px',
-    padding: '10px',
-    border: '1px solid #ccc',
-    borderRadius: '3px',
-    cursor: 'pointer',
-    width: '2.3rem',
-    height: '2.3rem',
-    backgroundColor: 'gray',
-    transition: 'background-color 0.3s',
-    '&:hover': {
-      backgroundColor: 'lightgray',
-    },
-    alignItems: 'center',
-  },
-  textPages: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: '5px',
-    padding: '10px',
-  },
 }));
 
 const UsersPage = () => {
