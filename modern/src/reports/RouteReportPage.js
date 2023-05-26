@@ -33,12 +33,13 @@ const RouteReportPage = () => {
   const t = useTranslation();
 
   const positionAttributes = usePositionAttributes(t);
-
+  const time = useSelector((state) => state.reports.time);
   const devices = useSelector((state) => state.devices.items);
   const [columns, setColumns] = usePersistedState('routeColumns', ['fixTime', 'latitude', 'longitude', 'speed', 'address']);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [OrignalArray, setOrignalArray] = useState([]);
 
   const onMapPointClick = useCallback((positionId) => {
     setSelectedItem(items.find((it) => it.id === positionId));
@@ -61,7 +62,9 @@ const RouteReportPage = () => {
           headers: { Accept: 'application/json' },
         });
         if (response.ok) {
-          setItems(await response.json());
+          const resp = await response.json();
+          setOrignalArray(resp);
+          setItems(resp);
         } else {
           throw Error(await response.text());
         }
@@ -115,6 +118,22 @@ const RouteReportPage = () => {
   const onPageSectionChangeBefore = (pageNumber) => {
     setCurrentPageSection(pageNumber);
   };
+  const optionsTimes = [
+    { value: '1', label: 'Cada 1 actualización' },
+    { value: '2', label: 'Cada 2 actualizaciones' },
+    { value: '4', label: 'Cada 4 actualizaciones' },
+    { value: '6', label: 'Cada 6 actualizaciones' },
+    { value: '12', label: 'Cada 12 actualizaciones' },
+    { value: '36', label: 'Cada 36 actualizaciones' },
+  ];
+  const handleChangeTime = (selectedTimeOption) => {
+    const Array = [];
+    for (let i = 0; i <= OrignalArray.length - 1;) {
+      Array.push(OrignalArray[i]);
+      i += parseInt(selectedTimeOption.value, 10);
+    }
+    setItems([...Array]);
+  };
   return (
     <PageLayout menu={<ReportsMenu />} breadcrumbs={['reportTitle', 'reportRoute']}>
       <div className={classes.container}>
@@ -144,9 +163,16 @@ const RouteReportPage = () => {
                 setColumns={setColumns}
                 columnsObject={positionAttributes}
               />
-              <Select
-                placeholder={t('time')}
-              />
+              <div className={classes.filterItemInterval}>
+                <Select
+                  options={optionsTimes}
+                  placeholder="Intervalo"
+                  value={optionsTimes.find((option) => option.value === time)}
+                  menuPortalTarget={document.body}
+                  onChange={handleChangeTime}
+                  isDisabled={items.length <= 0}
+                />
+              </div>
             </ReportFilter>
           </div>
           <Table>

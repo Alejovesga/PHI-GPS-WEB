@@ -6,7 +6,6 @@ const Pagination = ({ currentPage, onPageChange, pagesSection, totalPages, onPag
   // Genera un arreglo de números desde 1 hasta el número total de páginas
   // const pageNumbers = [...Array(totalPages).keys()].map((num) => num + 1);
   // const pageNumbersSection = [...Array(pagesSection).keys()].map((num) => num + 1);
-  console.log(totalPages);
   return (
     <div>
       <p

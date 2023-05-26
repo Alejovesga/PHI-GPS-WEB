@@ -49,19 +49,11 @@ export default makeStyles((theme) => ({
     flexGrow: 1,
     overflow: 'hidden',
   },
-  // buttonsPagination: {
-  //   marginTop: 5,
-  // },
-  // buttonPage: {
-  //   padding: 10,
-  //   font: 1,
-  //   background: '#F4F6F7',
-  //   bgcolor: 'background.paper',
-  //   m: 1,
-  //   borderColor: 'text.primary',
-  //   width: '2.3rem',
-  //   height: '2.3rem',
-  // },
+  filterItemInterval: {
+    minWidth: 0,
+    flex: `1 1 ${theme.dimensions.filterFormWidth}`,
+    maxWidth: '30%',
+  },
   buttonsPagination: {
     display: 'flex',
     justifyContent: 'center',

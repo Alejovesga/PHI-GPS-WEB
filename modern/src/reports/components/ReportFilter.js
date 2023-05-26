@@ -126,16 +126,6 @@ const ReportFilter = ({ children, handleSubmit, handleSchedule, showOnly, ignore
       {!ignoreDevice && (
         <div className={classes.filterItem}>
           <FormControl fullWidth>
-            {/* <Select
-              label={t(multiDevice ? 'deviceTitle' : 'reportDevice')}
-              value={multiDevice ? deviceIds : deviceId || ''}
-              onChange={(e) => dispatch(multiDevice ? devicesActions.selectIds(e.target.value) : devicesActions.selectId(e.target.value))}
-              multiple={multiDevice}
-            >
-              {Object.values(devices).sort((a, b) => a.name.localeCompare(b.name)).map((device) => (
-                <MenuItem key={device.id} value={device.id}>{device.name}</MenuItem>
-              ))}
-            </Select> */}
             <Select
               className={classes.selectItem}
               options={options}
@@ -151,18 +141,6 @@ const ReportFilter = ({ children, handleSubmit, handleSchedule, showOnly, ignore
       {includeGroups && (
         <div className={classes.filterItem}>
           <FormControl fullWidth>
-            {/* <InputLabel>{t('settingsGroups')}</InputLabel> */}
-            {/* <Select
-              label={t('settingsGroups')}
-              value={groupIds}
-              onChange={(e) => dispatch(reportsActions.updateGroupIds(e.target.value))}
-              multiple
-            >
-              {Object.values(groups).sort((a, b) => a.name.localeCompare(b.name)).map((group) => (
-                <MenuItem key={group.id} value={group.id}>{group.name}</MenuItem>
-              ))}
-            </Select> */}
-
             <Select
               options={optionsGroups}
               placeholder={t('settingsGroups')}
@@ -178,16 +156,6 @@ const ReportFilter = ({ children, handleSubmit, handleSchedule, showOnly, ignore
         <>
           <div className={classes.filterItem}>
             <FormControl fullWidth>
-              {/* <InputLabel>{t('reportPeriod')}</InputLabel>
-              <Select label={t('reportPeriod')} value={period} onChange={(e) => dispatch(reportsActions.updatePeriod(e.target.value))}>
-                <MenuItem value="today">{t('reportToday')}</MenuItem>
-                <MenuItem value="yesterday">{t('reportYesterday')}</MenuItem>
-                <MenuItem value="thisWeek">{t('reportThisWeek')}</MenuItem>
-                <MenuItem value="previousWeek">{t('reportPreviousWeek')}</MenuItem>
-                <MenuItem value="thisMonth">{t('reportThisMonth')}</MenuItem>
-                <MenuItem value="previousMonth">{t('reportPreviousMonth')}</MenuItem>
-                <MenuItem value="custom">{t('reportCustom')}</MenuItem>
-              </Select> */}
               <Select
                 options={optionsPeriod}
                 placeholder={t('reportPeriod')}

@@ -100,11 +100,6 @@ const ChartReportPage = () => {
       <ReportFilter handleSubmit={handleSubmit} showOnly>
         <div className={classes.filterItem}>
           <FormControl fullWidth>
-            {/* <Select label={t('reportChartType')} value={type} onChange={(e) => setType(e.target.value)}>
-              {Object.keys(positionAttributes).filter((key) => positionAttributes[key].type === 'number').map((key) => (
-                <MenuItem key={key} value={key}>{positionAttributes[key].name}</MenuItem>
-              ))}
-            </Select> */}
             <Select
               instanceId="typeSelect"
               options={options}
