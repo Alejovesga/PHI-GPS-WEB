@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'auto',
   },
   columnAction: {
-    width: '1%',
+    width: '10%',
     paddingRight: theme.spacing(1),
   },
   buttonsPagination: {

@@ -105,7 +105,6 @@ const RouteReportPage = () => {
   const onPageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-
   // cantidad de pagina en seccion
   let pagesSection = [...Array(totalPages).keys()].map((num) => num + 1);
   const indexLastSection = currentPageSection * 10;
