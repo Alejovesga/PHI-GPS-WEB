@@ -66,17 +66,14 @@ const CommandsPage = () => {
     }
     handleRangePage();
   }, [items]);
-  // Calcula el índice del primer y último registro en cada página
+  const filteredItems = items.filter(filterByKeyword(searchKeyword));
   const indexOfLast = currentPage * 50;
   const indexOfFirst = indexOfLast - 50;
-  // Calcula el número total de páginas
-  const totalPages = Math.ceil(items.length / 50);
-  // Cambia a la página seleccionada
+  const totalPages = Math.ceil(filteredItems.length / 50);
   const onPageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  // cantidad de pagina en seccion
   let pagesSection = [...Array(totalPages).keys()].map((num) => num + 1);
   const indexLastSection = currentPageSection * 10;
   const indexFirstSection = indexLastSection - 10;
@@ -102,23 +99,27 @@ const CommandsPage = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {!loading ? items.slice(indexOfFirst, indexOfLast).filter(filterByKeyword(searchKeyword)).map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.description}</TableCell>
-                <TableCell>{t(prefixString('command', item.type))}</TableCell>
-                <TableCell>{formatBoolean(item.textChannel, t)}</TableCell>
-                {!limitCommands && (
-                  <TableCell className={classes.columnAction} padding="none">
-                    <CollectionActions itemId={item.id} editPath="/settings/command" endpoint="commands" setTimestamp={setTimestamp} />
-                  </TableCell>
-                )}
-              </TableRow>
-            )) : (<TableShimmer columns={limitCommands ? 3 : 4} endAction />)}
+            {!loading ? (() => {
+              const NewItems = filteredItems.length >= (indexOfLast - indexOfFirst) ? filteredItems.slice(indexOfFirst, indexOfLast) : filteredItems;
+              return NewItems.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.description}</TableCell>
+                  <TableCell>{t(prefixString('command', item.type))}</TableCell>
+                  <TableCell>{formatBoolean(item.textChannel, t)}</TableCell>
+                  {!limitCommands && (
+                    <TableCell className={classes.columnAction} padding="none">
+                      <CollectionActions itemId={item.id} editPath="/settings/command" endpoint="commands" setTimestamp={setTimestamp} />
+                    </TableCell>
+                  )}
+                </TableRow>
+              ));
+            })() : (<TableShimmer columns={limitCommands ? 3 : 4} endAction />)}
           </TableBody>
         </Table>
         <CollectionFab editPath="/settings/command" disabled={limitCommands} />
       </div>
       <div className={classes.buttonsPagination}>
+        {items.filter(filterByKeyword(searchKeyword)).length >= (indexOfLast - indexOfFirst) && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -128,6 +129,7 @@ const CommandsPage = () => {
           currentPageSection={currentPageSection}
           onPageSectionChangeBefore={onPageSectionChangeBefore}
         />
+        )}
       </div>
     </PageLayout>
   );

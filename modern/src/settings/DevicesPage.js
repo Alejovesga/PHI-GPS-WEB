@@ -82,12 +82,10 @@ const DevicesPage = () => {
     }
     handleRangePage();
   }, [items]);
-  // Calcula el índice del primer y último registro en cada página
+  const filteredItems = items.filter(filterByKeyword(searchKeyword));
   const indexOfLast = currentPage * 100;
   const indexOfFirst = indexOfLast - 100;
-  // Calcula el número total de páginas
-  const totalPages = Math.ceil(items.length / 100);
-  // Cambia a la página seleccionada
+  const totalPages = Math.ceil(filteredItems.length / 100);
   const onPageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -122,32 +120,37 @@ const DevicesPage = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {!loading ? items.slice(indexOfFirst, indexOfLast).filter(filterByKeyword(searchKeyword)).map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.name}</TableCell>
-                <TableCell>{item.uniqueId}</TableCell>
-                <TableCell>{item.groupId ? groups[item.groupId].name : null}</TableCell>
-                <TableCell>{item.phone}</TableCell>
-                <TableCell>{item.model}</TableCell>
-                <TableCell>{item.contact}</TableCell>
-                <TableCell>{formatTime(item.expirationTime, 'date', hours12)}</TableCell>
-                <TableCell className={classes.columnAction} padding="none">
-                  <CollectionActions
-                    itemId={item.id}
-                    editPath="/settings/device"
-                    endpoint="devices"
-                    setTimestamp={setTimestamp}
-                    customActions={[actionConnections]}
-                    readonly={deviceReadonly}
-                  />
-                </TableCell>
-              </TableRow>
-            )) : (<TableShimmer columns={7} endAction />)}
+            {!loading ? (() => {
+              const NewItems = filteredItems.length >= (indexOfLast - indexOfFirst) ? filteredItems.slice(indexOfFirst, indexOfLast) : filteredItems;
+              return NewItems.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{item.uniqueId}</TableCell>
+                  <TableCell>{item.groupId ? groups[item.groupId].name : null}</TableCell>
+                  <TableCell>{item.phone}</TableCell>
+                  <TableCell>{item.model}</TableCell>
+                  <TableCell>{item.contact}</TableCell>
+                  <TableCell>{formatTime(item.expirationTime, 'date', hours12)}</TableCell>
+                  <TableCell className={classes.columnAction} padding="none">
+                    <CollectionActions
+                      itemId={item.id}
+                      editPath="/settings/device"
+                      endpoint="devices"
+                      setTimestamp={setTimestamp}
+                      customActions={[actionConnections]}
+                      readonly={deviceReadonly}
+                    />
+                  </TableCell>
+                </TableRow>
+              ));
+            })() : (
+              <TableShimmer columns={7} endAction />)}
           </TableBody>
         </Table>
         <CollectionFab editPath="/settings/device" />
       </div>
       <div className={classes.buttonsPagination}>
+        {items.filter(filterByKeyword(searchKeyword)).length >= (indexOfLast - indexOfFirst) && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -157,6 +160,7 @@ const DevicesPage = () => {
           currentPageSection={currentPageSection}
           onPageSectionChangeBefore={onPageSectionChangeBefore}
         />
+        )}
       </div>
     </PageLayout>
   );

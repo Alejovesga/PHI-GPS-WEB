@@ -83,12 +83,10 @@ const GroupsPage = () => {
     }
     handleRangePage();
   }, [items]);
-  // Calcula el índice del primer y último registro en cada página
+  const filteredItems = items.filter(filterByKeyword(searchKeyword));
   const indexOfLast = currentPage * 50;
   const indexOfFirst = indexOfLast - 50;
-  // Calcula el número total de páginas
-  const totalPages = Math.ceil(items.length / 50);
-  // Cambia a la página seleccionada
+  const totalPages = Math.ceil(filteredItems.length / 50);
   const onPageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -117,25 +115,29 @@ const GroupsPage = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {!loading ? items.slice(indexOfFirst, indexOfLast).filter(filterByKeyword(searchKeyword)).map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.name}</TableCell>
-                <TableCell className={classes.columnAction} padding="none">
-                  <CollectionActions
-                    itemId={item.id}
-                    editPath="/settings/group"
-                    endpoint="groups"
-                    setTimestamp={setTimestamp}
-                    customActions={limitCommands ? [actionConnections] : [actionConnections, actionCommand]}
-                  />
-                </TableCell>
-              </TableRow>
-            )) : (<TableShimmer columns={2} endAction />)}
+            {!loading ? (() => {
+              const NewItems = filteredItems.length >= (indexOfLast - indexOfFirst) ? filteredItems.slice(indexOfFirst, indexOfLast) : filteredItems;
+              return NewItems.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell className={classes.columnAction} padding="none">
+                    <CollectionActions
+                      itemId={item.id}
+                      editPath="/settings/group"
+                      endpoint="groups"
+                      setTimestamp={setTimestamp}
+                      customActions={limitCommands ? [actionConnections] : [actionConnections, actionCommand]}
+                    />
+                  </TableCell>
+                </TableRow>
+              ));
+            })() : (<TableShimmer columns={2} endAction />)}
           </TableBody>
         </Table>
         <CollectionFab editPath="/settings/group" />
       </div>
       <div className={classes.buttonsPagination}>
+        {items.filter(filterByKeyword(searchKeyword)).length >= (indexOfLast - indexOfFirst) && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -145,6 +147,7 @@ const GroupsPage = () => {
           currentPageSection={currentPageSection}
           onPageSectionChangeBefore={onPageSectionChangeBefore}
         />
+        )}
       </div>
     </PageLayout>
   );

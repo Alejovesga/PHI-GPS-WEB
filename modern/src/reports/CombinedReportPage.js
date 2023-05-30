@@ -67,13 +67,10 @@ const CombinedReportPage = () => {
     }
     handleRangePage();
   }, [items]);
-  // Calcula el índice del primer y último registro en cada página
   const indexOfLast = currentPage * 100;
   const indexOfFirst = indexOfLast - 100;
-  // Calcula el número total de páginas
   const totalPages = Math.ceil(items.flatMap((item) => item.events.length) / 100);
   console.log(items.flatMap((item) => item.events.length));
-  // Cambia a la página seleccionada
   const onPageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
     console.log(pageNumber);

@@ -166,12 +166,9 @@ const EventReportPage = () => {
     }
     handleRangePage();
   }, [items]);
-  // Calcula el índice del primer y último registro en cada página
   const indexOfLast = currentPage * 100;
   const indexOfFirst = indexOfLast - 100;
-  // Calcula el número total de páginas
   const totalPages = Math.ceil(items.length / 100);
-  // Cambia a la página seleccionada
   const onPageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -218,23 +215,6 @@ const EventReportPage = () => {
             <ReportFilter handleSubmit={handleSubmit} handleSchedule={handleSchedule}>
               <div className={classes.filterItem}>
                 <FormControl fullWidth>
-                  {/* <Select
-                    label={t('reportEventTypes')}
-                    value={eventTypes}
-                    onChange={(event, child) => {
-                      let values = event.target.value;
-                      const clicked = child.props.value;
-                      if (values.includes('allEvents') && values.length > 1) {
-                        values = [clicked];
-                      }
-                      setEventTypes(values);
-                    }}
-                    multiple
-                  >
-                    {allEventTypes.map(([key, string]) => (
-                      <MenuItem key={key} value={key}>{t(string)}</MenuItem>
-                    ))}
-                  </Select> */}
                   <Select
                     instanceId="eventTypes"
                     options={options}

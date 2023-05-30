@@ -96,12 +96,9 @@ const RouteReportPage = () => {
     }
     handleRangePage();
   }, [items]);
-  // Calcula el índice del primer y último registro en cada página
   const indexOfLast = currentPage * 200;
   const indexOfFirst = indexOfLast - 200;
-  // Calcula el número total de páginas
   const totalPages = Math.ceil(items.length / 200);
-  // Cambia a la página seleccionada
   const onPageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };

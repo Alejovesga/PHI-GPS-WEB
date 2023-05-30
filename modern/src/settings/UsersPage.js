@@ -101,12 +101,11 @@ const UsersPage = () => {
     }
     handleRangePage();
   }, [items]);
-  // Calcula el índice del primer y último registro en cada página
+
+  const filteredItems = items.filter(filterByKeyword(searchKeyword));
   const indexOfLast = currentPage * 20;
   const indexOfFirst = indexOfLast - 20;
-  // Calcula el número total de páginas
-  const totalPages = Math.ceil(items.length / 20);
-  // Cambia a la página seleccionada
+  const totalPages = Math.ceil(filteredItems.length / 20);
   const onPageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -140,28 +139,34 @@ const UsersPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {!loading ? items.slice(indexOfFirst, indexOfLast).filter(filterByKeyword(searchKeyword)).map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.email}</TableCell>
-                  <TableCell>{formatBoolean(item.administrator, t)}</TableCell>
-                  <TableCell>{formatBoolean(item.disabled, t)}</TableCell>
-                  <TableCell>{formatTime(item.expirationTime, 'date', hours12)}</TableCell>
-                  <TableCell className={classes.columnAction} padding="none">
-                    <CollectionActions
-                      itemId={item.id}
-                      editPath="/settings/user"
-                      endpoint="users"
-                      setTimestamp={setTimestamp}
-                      customActions={manager ? [actionLogin, actionConnections] : [actionConnections]}
-                    />
-                  </TableCell>
-                </TableRow>
-              )) : (<TableShimmer columns={6} endAction />)}
+              {!loading ? (() => {
+                const NewItems = filteredItems.length >= (indexOfLast - indexOfFirst) ? filteredItems.slice(indexOfFirst, indexOfLast) : filteredItems;
+                return NewItems.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{item.email}</TableCell>
+                    <TableCell>{formatBoolean(item.administrator, t)}</TableCell>
+                    <TableCell>{formatBoolean(item.disabled, t)}</TableCell>
+                    <TableCell>{formatTime(item.expirationTime, 'date', hours12)}</TableCell>
+                    <TableCell className={classes.columnAction} padding="none">
+                      <CollectionActions
+                        itemId={item.id}
+                        editPath="/settings/user"
+                        endpoint="users"
+                        setTimestamp={setTimestamp}
+                        customActions={manager ? [actionLogin, actionConnections] : [actionConnections]}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ));
+              })() : (
+                <TableShimmer columns={6} endAction />
+              )}
             </TableBody>
           </Table>
         </div>
         <div className={classes.buttonsPagination}>
+          {items.filter(filterByKeyword(searchKeyword)).length >= (indexOfLast - indexOfFirst) && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -171,6 +176,7 @@ const UsersPage = () => {
             currentPageSection={currentPageSection}
             onPageSectionChangeBefore={onPageSectionChangeBefore}
           />
+          )}
         </div>
         <CollectionFab editPath="/settings/user" />
       </div>

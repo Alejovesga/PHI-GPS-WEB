@@ -85,17 +85,14 @@ const MaintenacesPage = () => {
     }
     handleRangePage();
   }, [items]);
-  // Calcula el índice del primer y último registro en cada página
+  const filteredItems = items.filter(filterByKeyword(searchKeyword));
   const indexOfLast = currentPage * 50;
   const indexOfFirst = indexOfLast - 50;
-  // Calcula el número total de páginas
-  const totalPages = Math.ceil(items.length / 50);
-  // Cambia a la página seleccionada
+  const totalPages = Math.ceil(filteredItems.length / 50);
   const onPageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  // cantidad de pagina en seccion
   let pagesSection = [...Array(totalPages).keys()].map((num) => num + 1);
   const indexLastSection = currentPageSection * 10;
   const indexFirstSection = indexLastSection - 10;
@@ -122,31 +119,36 @@ const MaintenacesPage = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {!loading ? items.slice(indexOfFirst, indexOfLast).filter(filterByKeyword(searchKeyword)).map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.name}</TableCell>
-                <TableCell>{item.type}</TableCell>
-                <TableCell>{convertAttribute(item.type, item.start)}</TableCell>
-                <TableCell>{convertAttribute(item.type, item.period)}</TableCell>
-                <TableCell className={classes.columnAction} padding="none">
-                  <CollectionActions itemId={item.id} editPath="/settings/maintenance" endpoint="maintenance" setTimestamp={setTimestamp} />
-                </TableCell>
-              </TableRow>
-            )) : (<TableShimmer columns={5} endAction />)}
+            {!loading ? (() => {
+              const NewItems = filteredItems.length >= (indexOfLast - indexOfFirst) ? filteredItems.slice(indexOfFirst, indexOfLast) : filteredItems;
+              return NewItems.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{item.type}</TableCell>
+                  <TableCell>{convertAttribute(item.type, item.start)}</TableCell>
+                  <TableCell>{convertAttribute(item.type, item.period)}</TableCell>
+                  <TableCell className={classes.columnAction} padding="none">
+                    <CollectionActions itemId={item.id} editPath="/settings/maintenance" endpoint="maintenance" setTimestamp={setTimestamp} />
+                  </TableCell>
+                </TableRow>
+              ));
+            })() : (<TableShimmer columns={5} endAction />)}
           </TableBody>
         </Table>
         <CollectionFab editPath="/settings/maintenance" />
       </div>
       <div className={classes.buttonsPagination}>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          pagesSection={pagesSection}
-          onPageChange={onPageChange}
-          onPageSectionChange={onPageSectionChange}
-          currentPageSection={currentPageSection}
-          onPageSectionChangeBefore={onPageSectionChangeBefore}
-        />
+        {items.filter(filterByKeyword(searchKeyword)).length >= (indexOfLast - indexOfFirst) && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pagesSection={pagesSection}
+            onPageChange={onPageChange}
+            onPageSectionChange={onPageSectionChange}
+            currentPageSection={currentPageSection}
+            onPageSectionChangeBefore={onPageSectionChangeBefore}
+          />
+        )}
       </div>
     </PageLayout>
   );
