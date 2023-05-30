@@ -261,6 +261,7 @@ const EventReportPage = () => {
           </Table>
         </div>
         <div className={classes.buttonsPagination}>
+          {items.length >= (indexOfLast - indexOfFirst) && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -270,6 +271,7 @@ const EventReportPage = () => {
             currentPageSection={currentPageSection}
             onPageSectionChangeBefore={onPageSectionChangeBefore}
           />
+          )}
         </div>
       </div>
     </PageLayout>

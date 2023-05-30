@@ -40,12 +40,12 @@ const RouteReportPage = () => {
   const [loading, setLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [OrignalArray, setOrignalArray] = useState([]);
-
+  const [Reset, setReset] = useState(false);
   const onMapPointClick = useCallback((positionId) => {
     setSelectedItem(items.find((it) => it.id === positionId));
   }, [items, setSelectedItem]);
-
   const handleSubmit = useCatch(async ({ deviceIds, from, to, type }) => {
+    setReset(true);
     const query = new URLSearchParams({ from, to });
     deviceIds.forEach((deviceId) => query.append('deviceId', deviceId));
     if (type === 'export') {
@@ -73,7 +73,6 @@ const RouteReportPage = () => {
       }
     }
   });
-
   const handleSchedule = useCatch(async (deviceIds, groupIds, report) => {
     report.type = 'route';
     const error = await scheduleReport(deviceIds, groupIds, report);
@@ -129,6 +128,7 @@ const RouteReportPage = () => {
       i += parseInt(selectedTimeOption.value, 10);
     }
     setItems([...Array]);
+    setReset(false);
   };
   return (
     <PageLayout menu={<ReportsMenu />} breadcrumbs={['reportTitle', 'reportRoute']}>
@@ -163,7 +163,7 @@ const RouteReportPage = () => {
                 <Select
                   options={optionsTimes}
                   placeholder="Intervalo"
-                  value={optionsTimes.find((option) => option.value === time)}
+                  value={Reset ? null : optionsTimes.find((option) => option.value === time)}
                   menuPortalTarget={document.body}
                   onChange={handleChangeTime}
                   isDisabled={items.length <= 0}
@@ -209,6 +209,7 @@ const RouteReportPage = () => {
           </Table>
         </div>
         <div className={classes.buttonsPagination}>
+          {items.length >= (indexOfLast - indexOfFirst) && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -218,6 +219,7 @@ const RouteReportPage = () => {
             currentPageSection={currentPageSection}
             onPageSectionChangeBefore={onPageSectionChangeBefore}
           />
+          )}
         </div>
       </div>
     </PageLayout>

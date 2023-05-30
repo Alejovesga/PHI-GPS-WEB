@@ -240,6 +240,7 @@ const TripReportPage = () => {
           </Table>
         </div>
         <div className={classes.buttonsPagination}>
+          {items.length >= (indexOfLast - indexOfFirst) && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -249,6 +250,7 @@ const TripReportPage = () => {
             currentPageSection={currentPageSection}
             onPageSectionChangeBefore={onPageSectionChangeBefore}
           />
+          )}
         </div>
       </div>
     </PageLayout>
