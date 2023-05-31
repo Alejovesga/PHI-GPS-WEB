@@ -77,6 +77,7 @@ const MainPage = () => {
   const selectedPosition = filteredPositions.find((position) => selectedDeviceId && position.deviceId === selectedDeviceId);
 
   const [filteredDevices, setFilteredDevices] = useState([]);
+  const [filteredGroup, setfilteredGroup] = useState([]);
 
   const [keyword, setKeyword] = useState('');
   const [filter, setFilter] = usePersistedState('filter', {
@@ -97,7 +98,7 @@ const MainPage = () => {
     }
   }, [desktop, mapOnSelect, selectedDeviceId]);
 
-  useFilter(keyword, filter, filterSort, filterMap, positions, setFilteredDevices, setFilteredPositions);
+  useFilter(keyword, filter, filterSort, filterMap, positions, setFilteredDevices, setFilteredPositions, setfilteredGroup);
 
   return (
     <div className={classes.root}>
@@ -122,6 +123,7 @@ const MainPage = () => {
             setFilterSort={setFilterSort}
             filterMap={filterMap}
             setFilterMap={setFilterMap}
+            filteredGroup={filteredGroup}
           />
         </Paper>
         <div className={classes.middle}>

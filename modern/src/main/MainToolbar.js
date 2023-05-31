@@ -2,8 +2,9 @@ import React, { useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
-  Toolbar, IconButton, OutlinedInput, InputAdornment, Popover, FormControl, InputLabel, Select, MenuItem, FormGroup, FormControlLabel, Checkbox, Badge, ListItemButton, ListItemText, Tooltip,
+  Toolbar, IconButton, OutlinedInput, InputAdornment, Popover, FormControl, FormGroup, FormControlLabel, Checkbox, Badge, ListItemButton, ListItemText, Tooltip,
 } from '@mui/material';
+import Select from 'react-select';
 import { makeStyles, useTheme } from '@mui/styles';
 import MapIcon from '@mui/icons-material/Map';
 import ViewListIcon from '@mui/icons-material/ViewList';
@@ -39,6 +40,7 @@ const MainToolbar = ({
   setFilterSort,
   filterMap,
   setFilterMap,
+  filteredGroup,
 }) => {
   const classes = useStyles();
   const theme = useTheme();
@@ -55,8 +57,32 @@ const MainToolbar = ({
   const [filterAnchorEl, setFilterAnchorEl] = useState(null);
   const [devicesAnchorEl, setDevicesAnchorEl] = useState(null);
 
-  const deviceStatusCount = (status) => Object.values(devices).filter((d) => d.status === status).length;
-
+  const deviceStatusCount = (status) => Object.values(filteredGroup).filter((d) => d.status === status).length;
+  const options = Object.values(groups).sort((a, b) => a.name.localeCompare(b.name)).map((group) => ({
+    value: group.id,
+    label: group.name,
+  }));
+  const optionsStatuses = [
+    { value: 'online', label: `${t('deviceStatusOnline')} (${deviceStatusCount('online')})` },
+    { value: 'offline', label: `${t('deviceStatusOffline')} (${deviceStatusCount('offline')})` },
+    { value: 'unknown', label: `${t('deviceStatusUnknown')} (${deviceStatusCount('unknown')})` },
+  ];
+  const optionsSort = [
+    { value: '', label: `${'\u00a0'}` },
+    { value: 'name', label: `${t('sharedName')}` },
+    { value: 'lastUpdate', label: `${t('deviceLastUpdate')}` },
+  ];
+  const handleGroupChange = (selectedOptions) => {
+    const selectedGroupIds = selectedOptions.map((option) => option.value);
+    setFilter({ ...filter, groups: selectedGroupIds });
+  };
+  const handleStatusChange = (selectedOptions) => {
+    const selectedStatuses = selectedOptions.map((option) => option.value);
+    setFilter({ ...filter, statuses: selectedStatuses });
+  };
+  const handleSortChange = (selectedOptions) => {
+    setFilterSort(selectedOptions.value);
+  };
   return (
     <Toolbar ref={toolbarRef} className={classes.toolbar}>
       <IconButton edge="start" onClick={() => setDevicesOpen(!devicesOpen)}>
@@ -120,34 +146,43 @@ const MainToolbar = ({
       >
         <div className={classes.filterPanel}>
           <FormControl>
-            <InputLabel>{t('deviceStatus')}</InputLabel>
             <Select
-              label={t('deviceStatus')}
-              value={filter.statuses}
-              onChange={(e) => setFilter({ ...filter, statuses: e.target.value })}
-              multiple
-            >
-              <MenuItem value="online">{`${t('deviceStatusOnline')} (${deviceStatusCount('online')})`}</MenuItem>
-              <MenuItem value="offline">{`${t('deviceStatusOffline')} (${deviceStatusCount('offline')})`}</MenuItem>
-              <MenuItem value="unknown">{`${t('deviceStatusUnknown')} (${deviceStatusCount('unknown')})`}</MenuItem>
-            </Select>
+              options={options}
+              placeholder={t('settingsGroups')}
+              value={filter.groups.map((groupId) => ({
+                value: groupId,
+                label: options.find((option) => option.value === groupId)?.label || '',
+              }))}
+              onChange={handleGroupChange}
+              isMulti
+              menuPortalTarget={document.body}
+              menuPlacement="auto"
+              styles={{
+                menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                menu: (base) => ({ ...base, maxHeight: 200, overflowY: 'auto' }),
+              }}
+            />
           </FormControl>
           <FormControl>
-            <InputLabel>{t('settingsGroups')}</InputLabel>
             <Select
-              label={t('settingsGroups')}
-              value={filter.groups}
-              onChange={(e) => setFilter({ ...filter, groups: e.target.value })}
-              multiple
-            >
-              {Object.values(groups).sort((a, b) => a.name.localeCompare(b.name)).map((group) => (
-                <MenuItem key={group.id} value={group.id}>{group.name}</MenuItem>
-              ))}
-            </Select>
+              options={optionsStatuses}
+              placeholder={t('deviceStatus')}
+              value={filter.statuses.map((statusesId) => ({
+                value: statusesId,
+                label: optionsStatuses.find((option) => option.value === statusesId)?.label || '',
+              }))}
+              onChange={handleStatusChange}
+              menuPortalTarget={document.body}
+              menuPlacement="auto"
+              styles={{
+                menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                menu: (base) => ({ ...base, maxHeight: 200, overflowY: 'auto' }),
+              }}
+              isMulti
+            />
           </FormControl>
           <FormControl>
-            <InputLabel>{t('sharedSortBy')}</InputLabel>
-            <Select
+            {/* <Select
               label={t('sharedSortBy')}
               value={filterSort}
               onChange={(e) => setFilterSort(e.target.value)}
@@ -156,7 +191,20 @@ const MainToolbar = ({
               <MenuItem value="">{'\u00a0'}</MenuItem>
               <MenuItem value="name">{t('sharedName')}</MenuItem>
               <MenuItem value="lastUpdate">{t('deviceLastUpdate')}</MenuItem>
-            </Select>
+            </Select> */}
+            <Select
+              options={optionsSort}
+              placeholder={t('sharedSortBy')}
+              value={optionsSort.find((option) => option.value === filterSort)}
+              onChange={handleSortChange}
+              displayEmpty
+              menuPortalTarget={document.body}
+              menuPlacement="auto"
+              styles={{
+                menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                menu: (base) => ({ ...base, maxHeight: 200, overflowY: 'auto' }),
+              }}
+            />
           </FormControl>
           <FormGroup>
             <FormControlLabel

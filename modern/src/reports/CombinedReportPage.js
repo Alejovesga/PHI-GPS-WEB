@@ -70,7 +70,6 @@ const CombinedReportPage = () => {
   const indexOfLast = currentPage * 100;
   const indexOfFirst = indexOfLast - 100;
   const totalPages = Math.ceil(items.flatMap((item) => item.events.length) / 100);
-  console.log(items.flatMap((item) => item.events.length));
   const onPageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
     console.log(pageNumber);
